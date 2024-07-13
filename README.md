@@ -27,7 +27,7 @@ For my analysis, I used a variety of tools:
 
 # Analysis
 
-### 1. Top-paying data analyst/business analyst jobs (Top 10)
+### 1. Top-paying data analyst/business analyst jobs
 To identify the top-paying roles, I filtered 'data analyst' and 'business analyst' roles by location, focusing on jobs in Canada. Then I sorted the results by average yearly salary. 
 
 Query below highlights the top 10 highest paying jobs in the field.  
