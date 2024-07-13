@@ -6,6 +6,50 @@
 - Why? Targets skills that offer job security (high demand) and financial benefits (high salaries), offering strategic insights for career development in data analysis
 */
 
+-- Canada
+
+SELECT
+    skills_dim.skills,
+    COUNT(skills_job_dim.job_id) AS demand_count,
+    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
+FROM job_postings_fact
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE
+    job_title_short IN ('Data Analyst', 'Business Analyst')
+    AND salary_year_avg IS NOT NULL
+    AND job_location ILIKE '%Canada%'
+GROUP BY
+    skills_dim.skills
+HAVING 
+    COUNT(skills_job_dim.job_id) > 5
+ORDER BY
+    avg_salary DESC,
+    demand_count DESC
+LIMIT 10
+
+-- Remote
+
+SELECT
+    skills_dim.skills,
+    COUNT(skills_job_dim.job_id) AS demand_count,
+    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
+FROM job_postings_fact
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE
+    job_title_short IN ('Data Analyst', 'Business Analyst')
+    AND salary_year_avg IS NOT NULL
+    AND job_work_from_home = true
+GROUP BY
+    skills_dim.skills
+HAVING
+    COUNT(skills_job_dim.job_id) > 10
+ORDER BY
+    avg_salary DESC,
+    demand_count DESC
+LIMIT 10
+
 -- Using CTEs
 WITH skills_demand AS (
     SELECT 
@@ -16,9 +60,9 @@ WITH skills_demand AS (
     INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
     INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
     WHERE  
-        job_title_short = 'Data Analyst' AND
-        job_work_from_home = TRUE AND
-        salary_year_avg IS NOT NULL
+        job_title_short IN ('Data Analyst', 'Business Analyst') 
+        AND job_location ILIKE '%Canada%' 
+        AND salary_year_avg IS NOT NULL
     GROUP BY   
         skills_dim.skill_id,
         skills_dim.skills
@@ -31,9 +75,9 @@ average_salary AS (
     INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
     INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
     WHERE  
-        job_title_short = 'Data Analyst' 
+        job_title_short IN ('Data Analyst', 'Business Analyst')
         AND salary_year_avg IS NOT NULL
-        AND job_work_from_home = TRUE
+        AND job_location ILIKE '%Canada%'
     GROUP BY   
         skills_job_dim.skill_id
 )
@@ -47,32 +91,9 @@ FROM
     skills_demand
 INNER JOIN average_salary ON skills_demand.skill_id = average_salary.skill_id
 WHERE
-    demand_count > 10
+    demand_count > 5
 ORDER BY
     avg_salary DESC,
     demand_count DESC
 
-LIMIT 25
-
--- more concise way
-
-SELECT
-    skills_dim.skill_id,
-    skills_dim.skills,
-    COUNT(skills_job_dim.job_id) AS demand_count,
-    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
-FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_title_short = 'Data Analyst'
-    AND salary_year_avg IS NOT NULL
-    AND job_work_from_home = TRUE
-GROUP BY
-    skills_dim.skill_id
-HAVING
-    COUNT(skills_job_dim.job_id) > 10
-ORDER BY
-    avg_salary DESC,
-    demand_count DESC
-LIMIT 25;
+LIMIT 10

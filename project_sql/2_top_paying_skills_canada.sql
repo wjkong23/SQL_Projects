@@ -7,6 +7,7 @@ Question: What are the top-paying data analyst jobs, and what skills are require
 
 */
 
+-- CTE to get the top 10 highest-paying Data/Business Analyst jobs
 WITH top_paying_jobs AS (
     SELECT 
         job_id,
@@ -24,6 +25,7 @@ WITH top_paying_jobs AS (
         AND salary_year_avg IS NOT NULL
     ORDER BY
         salary_year_avg DESC
+    LIMIT 10
 )
 
 SELECT 
